@@ -1,7 +1,9 @@
-﻿using ShopAgent.Api.BLL.Abstract;
+﻿using Microsoft.Extensions.Options;
+using ShopAgent.Api.BLL.Abstract;
 using ShopAgent.Api.BLL.Services;
 using ShopAgent.Api.Configuration;
 using System.Net;
+using System.Runtime;
 
 namespace ShopAgent.Api.AppStart
 {
@@ -35,6 +37,23 @@ namespace ShopAgent.Api.AppStart
 
         private void ConfigureClientAPI()
         {
+            _builder.Services.AddSingleton<McpClient>(provider =>
+            {
+                var settings = provider.GetRequiredService<IOptions<McpConfig>>().Value;
+                return new McpClient(settings.ServerUrl);
+            });
+
+            _builder.Services.AddScoped<OpenAiAssistantService>(provider =>
+            {
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                var mcpClient = provider.GetRequiredService<McpClient>();
+
+                return new OpenAiAssistantService(
+                    configuration["OpenAI:ApiKey"],
+                    configuration["McpSettings:ServerUrl"]
+                );
+            });
+
             _builder.Services.AddHttpClient<IAiClient, ChatGptAiClient>((serviceProvider, client) =>
             {
                 var aiClientConfig = _builder.Configuration.GetSection(AiClientConfig.SectionName).Get<AiClientConfig>();
