@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ShopAgent.Api.BLL.Abstract;
 
 namespace ShopAgent.Api.Controllers;
 
@@ -11,11 +12,24 @@ public class WeatherForecastController : ControllerBase
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
+    private readonly IAiClient _aiClient;
+
     private readonly ILogger<WeatherForecastController> _logger;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+
+    public WeatherForecastController(
+        IAiClient aiClient,
+        ILogger<WeatherForecastController> logger)
     {
+        _aiClient = aiClient;
         _logger = logger;
+    }
+
+    [HttpGet("test")]
+    public async Task<string> Test()
+    {
+        var res = await _aiClient.GetTextResponseAsync("напиши 4 стишье", "ты писатель");
+        return "123";
     }
 
     [HttpGet]
