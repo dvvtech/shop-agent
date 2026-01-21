@@ -1,4 +1,5 @@
-﻿using System.Net.WebSockets;
+﻿
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 
@@ -18,6 +19,33 @@ namespace ShopAgent.Api.BLL.Services
         public async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
             await _webSocket.ConnectAsync(_serverUri, cancellationToken);
+        }
+
+        public async Task GetAllToolAsync()
+        {
+            using var httpClient = new HttpClient();
+            var url = "https://mcp001.vkusvill.ru/mcp";
+
+            // JSON-RPC запрос
+            var json = """
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/list"
+            }
+            """;
+
+            var content = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await httpClient.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBody);
         }
 
         public async Task<McpResponse> CallToolAsync(string toolName, object parameters)

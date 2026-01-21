@@ -7,38 +7,48 @@ namespace ShopAgent.Api.Controllers
     [Route("api/[controller]")]
     public class AgentsController : ControllerBase
     {
-        private readonly OpenAiAssistantService _assistantService;
+        private readonly McpClient _mcpClient;
+        //private readonly OpenAiAssistantService _assistantService;
         private readonly Dictionary<string, string> _userThreads = new();
 
-        public AgentsController(OpenAiAssistantService assistantService)
+        public AgentsController(McpClient mcpClient)
+            //OpenAiAssistantService assistantService)
         {
-            _assistantService = assistantService;
+            _mcpClient = mcpClient;
+            //_assistantService = assistantService;
         }
 
-        [HttpPost("create-thread")]
-        public async Task<IActionResult> CreateThread([FromBody] CreateThreadRequest request)
+        [HttpGet("test")]
+        public async Task Test()
         {
-            var thread = await _assistantService.CreateThreadAsync();
-            _userThreads[request.UserId] = thread.Id;
-
-            return Ok(new { threadId = thread.Id });
+            //await _mcpClient.ConnectAsync();
+            await _mcpClient.GetAllToolAsync();
         }
 
-        [HttpPost("query")]
-        public async Task<IActionResult> QueryAgent([FromBody] AgentQueryRequest request)
-        {
-            if (!_userThreads.TryGetValue(request.UserId, out var threadId))
-            {
-                return BadRequest("Thread not found. Create a thread first.");
-            }
+        //[HttpPost("create-thread")]
+        //public async Task<IActionResult> CreateThread([FromBody] CreateThreadRequest request)
+        //{
+        //    var thread = await _assistantService.CreateThreadAsync();
+        //    _userThreads[request.UserId] = thread.Id;
 
-            var response = await _assistantService.ProcessMessageWithMcpAsync(
-                threadId,
-                request.Message
-            );
+        //    return Ok(new { threadId = thread.Id });
+        //}
 
-            return Ok(new { response });
-        }
+        //[HttpPost("query")]
+        //public async Task<IActionResult> QueryAgent([FromBody] AgentQueryRequest request)
+        //{
+        //    if (!_userThreads.TryGetValue(request.UserId, out var threadId))
+        //    {
+        //        return BadRequest("Thread not found. Create a thread first.");
+        //    }
+
+        //    var response = await _assistantService.ProcessMessageWithMcpAsync(
+        //        threadId,
+        //        request.Message
+        //    );
+
+        //    return Ok(new { response });
+        //}
 
         [HttpGet("tools")]
         public IActionResult GetAvailableTools()

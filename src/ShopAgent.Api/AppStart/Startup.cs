@@ -33,6 +33,7 @@ namespace ShopAgent.Api.AppStart
         {
             _builder.Services.Configure<AiClientConfig>(_builder.Configuration.GetSection(AiClientConfig.SectionName));
             _builder.Services.Configure<ProxyConfig>(_builder.Configuration.GetSection(ProxyConfig.SectionName));
+            _builder.Services.Configure<McpConfig>(_builder.Configuration.GetSection(McpConfig.SectionName));
         }
 
         private void ConfigureClientAPI()
@@ -43,16 +44,16 @@ namespace ShopAgent.Api.AppStart
                 return new McpClient(settings.ServerUrl);
             });
 
-            _builder.Services.AddScoped<OpenAiAssistantService>(provider =>
-            {
-                var configuration = provider.GetRequiredService<IConfiguration>();
-                var mcpClient = provider.GetRequiredService<McpClient>();
+            //_builder.Services.AddScoped<OpenAiAssistantService>(provider =>
+            //{
+            //    var configuration = provider.GetRequiredService<IConfiguration>();
+            //    var mcpClient = provider.GetRequiredService<McpClient>();
 
-                return new OpenAiAssistantService(
-                    configuration["OpenAI:ApiKey"],
-                    configuration["McpSettings:ServerUrl"]
-                );
-            });
+            //    return new OpenAiAssistantService(
+            //        configuration["OpenAI:ApiKey"],
+            //        configuration["McpSettings:ServerUrl"]
+            //    );
+            //});
 
             _builder.Services.AddHttpClient<IAiClient, ChatGptAiClient>((serviceProvider, client) =>
             {
